@@ -92,7 +92,8 @@ def _run(handle_data,
          performance_callback,
          stop_execution_callback,
          teardown,
-         execution_id):
+         execution_id,
+        data_frame_loaders):
     """Run a backtest for the given algorithm.
 
     This is shared between the cli and :func:`zipline.run_algo`.
@@ -107,6 +108,7 @@ def _run(handle_data,
         execution will be aborted.
     teardown - algo method like handle_data() or before_trading_start() that is called when the algo execution stops
     execution_id - unique id to identify this execution (backtest or live instance)
+    data_frame_loaders - loader for custom dataset
 
     """
 
@@ -214,12 +216,13 @@ def _run(handle_data,
 
     def choose_loader(column):
         # TODO Domain bypass
-        return pipeline_loader
+        # return pipeline_loader
         if column in USEquityPricing.columns:
             return pipeline_loader
-        raise ValueError(
-            "No PipelineLoader registered for column %s." % column
-        )
+        # raise ValueError(
+        #     "No PipelineLoader registered for column %s." % column
+        # )
+        return data_frame_loaders[column]
 
     if isinstance(metrics_set, six.string_types):
         try:
@@ -371,7 +374,8 @@ def run_algorithm(start,
                   stop_execution_callback=None,
                   execution_id=None,
                   state_filename=None,
-                  realtime_bar_target=None
+                  realtime_bar_target=None,
+                  data_frame_loaders=None
                   ):
     """
     Run a trading algorithm.
@@ -444,6 +448,7 @@ def run_algorithm(start,
     execution_id : unique id to identify this execution instance (backtest or live) will be used to mark and get logs
                    for this specific execution instance.
     state_filename : path to pickle file storing the algorithm "context" (similar to self)
+    data_frame_loaders : loader for custom dataset
 
     Returns
     -------
@@ -486,7 +491,8 @@ def run_algorithm(start,
         realtime_bar_target=realtime_bar_target,
         performance_callback=performance_callback,
         stop_execution_callback=stop_execution_callback,
-        execution_id=execution_id
+        execution_id=execution_id,
+        data_frame_loaders=data_frame_loaders
     )
 
 
